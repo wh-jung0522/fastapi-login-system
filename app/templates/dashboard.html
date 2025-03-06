@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드 - FastAPI 로그인 시스템</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FastAPI 로그인 시스템</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">홈</a></li>
+                    <li><a href="/dashboard" class="active">대시보드</a></li>
+                    <li><a href="#" id="logout-btn">로그아웃</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <section class="dashboard">
+                <h2>사용자 대시보드</h2>
+                <div class="message-box" id="message-box" style="display: none;"></div>
+                
+                <div class="user-profile">
+                    <h3>프로필 정보</h3>
+                    <div class="profile-info">
+                        <p><strong>사용자 이름:</strong> {{ user.username }}</p>
+                        <p><strong>이메일:</strong> {{ user.email }}</p>
+                        <p><strong>가입일:</strong> {{ user.created_at.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                </div>
+                
+                <div class="profile-update">
+                    <h3>프로필 업데이트</h3>
+                    <form id="update-form">
+                        <div class="form-group">
+                            <label for="username">사용자 이름</label>
+                            <input type="text" id="username" name="username" value="{{ user.username }}" required minlength="3" maxlength="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">이메일</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">새 비밀번호 (변경하려면 입력)</label>
+                            <input type="password" id="password" name="password" minlength="8">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn">업데이트</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 FastAPI 로그인 시스템</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateForm = document.getElementById('update-form');
+            const messageBox = document.getElementById('message-box');
+            
+            updateForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // 폼 데이터 수집
+                const userData = {
+                    username: document.getElementById('username').value,
+                    email: document.getElementById('email').value
+                };
+                
+                // 비밀번호가 입력되었을 경우만 포함
+                const password = document.getElementById('password').value;
+                if (password) {
+                    userData.password = password;
+                }
+                
+                try {
+                    // 프로필 업데이트 요청
+                    const response = await fetch('/api/v1/users/session-me', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // 업데이트 성공
+                        messageBox.textContent = '프로필이 성공적으로 업데이트되었습니다.';
+                        messageBox.className = 'message-box success';
+                        messageBox.style.display = 'block';
+                        
+                        // 비밀번호 필드 초기화
+                        document.getElementById('password').value = '';
+                        
+                        // 페이지 새로고침 (변경사항 반영)
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        // 업데이트 실패
+                        messageBox.textContent = data.detail || '프로필 업데이트에 실패했습니다.';
+                        messageBox.className = 'message-box error';
+                        messageBox.style.display = 'block';
+                    }
+                } catch (error) {
+                    // 네트워크 오류 등
+                    messageBox.textContent = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                    messageBox.className = 'message-box error';
+                    messageBox.style.display = 'block';
+                    console.error('Update error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - FastAPI 로그인 시스템</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FastAPI 로그인 시스템</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">홈</a></li>
+                    <li><a href="/login" class="active">로그인</a></li>
+                    <li><a href="/register">회원가입</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <section class="auth-form">
+                <h2>로그인</h2>
+                <div class="message-box" id="message-box" style="display: none;"></div>
+                
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">사용자 이름</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn">로그인</button>
+                    </div>
+                    
+                    <div class="form-links">
+                        <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
+                    </div>
+                </form>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 FastAPI 로그인 시스템</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const messageBox = document.getElementById('message-box');
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // 폼 데이터 수집
+                const formData = new FormData();
+                formData.append('username', document.getElementById('username').value);
+                formData.append('password', document.getElementById('password').value);
+                
+                try {
+                    // 로그인 요청
+                    const response = await fetch('/api/v1/auth/session-login', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // 로그인 성공
+                        messageBox.textContent = '로그인 성공! 리다이렉트 중...';
+                        messageBox.className = 'message-box success';
+                        messageBox.style.display = 'block';
+                        
+                        // 홈페이지로 리다이렉트
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                    } else {
+                        // 로그인 실패
+                        messageBox.textContent = data.detail || '로그인에 실패했습니다.';
+                        messageBox.className = 'message-box error';
+                        messageBox.style.display = 'block';
+                    }
+                } catch (error) {
+                    // 네트워크 오류 등
+                    messageBox.textContent = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                    messageBox.className = 'message-box error';
+                    messageBox.style.display = 'block';
+                    console.error('Login error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

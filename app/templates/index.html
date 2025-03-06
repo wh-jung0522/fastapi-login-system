@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI 로그인 시스템</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FastAPI 로그인 시스템</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">홈</a></li>
+                    {% if user %}
+                    <li><a href="/dashboard">대시보드</a></li>
+                    <li><a href="#" id="logout-btn">로그아웃</a></li>
+                    {% else %}
+                    <li><a href="/login">로그인</a></li>
+                    <li><a href="/register">회원가입</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <section class="welcome">
+                <h2>환영합니다!</h2>
+                {% if user %}
+                <p>안녕하세요, <strong>{{ user.username }}</strong>님! 로그인 되었습니다.</p>
+                <a href="/dashboard" class="btn">대시보드 보기</a>
+                {% else %}
+                <p>FastAPI와 MySQL을 이용한 로그인 시스템 예제입니다.</p>
+                <div class="buttons">
+                    <a href="/login" class="btn">로그인</a>
+                    <a href="/register" class="btn btn-outline">회원가입</a>
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="features">
+                <h2>기능 소개</h2>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h3>세션 기반 인증</h3>
+                        <p>MySQL 데이터베이스에 저장된 세션을 통한 안전한 인증 시스템</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>JWT 토큰 인증</h3>
+                        <p>REST API를 위한 JWT 기반 인증 시스템 지원</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>보안 비밀번호</h3>
+                        <p>bcrypt를 이용한 안전한 비밀번호 해싱 및 저장</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 FastAPI 로그인 시스템</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+</body>
+</html>

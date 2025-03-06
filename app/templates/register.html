@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - FastAPI 로그인 시스템</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FastAPI 로그인 시스템</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">홈</a></li>
+                    <li><a href="/login">로그인</a></li>
+                    <li><a href="/register" class="active">회원가입</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <section class="auth-form">
+                <h2>회원가입</h2>
+                <div class="message-box" id="message-box" style="display: none;"></div>
+                
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="username">사용자 이름</label>
+                        <input type="text" id="username" name="username" required minlength="3" maxlength="50">
+                        <small>3-50자 사이로 입력해주세요</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">이메일</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" name="password" required minlength="8">
+                        <small>최소 8자 이상 입력해주세요</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">비밀번호 확인</label>
+                        <input type="password" id="confirm-password" name="confirm-password" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn">회원가입</button>
+                    </div>
+                    
+                    <div class="form-links">
+                        <p>이미 계정이 있으신가요? <a href="/login">로그인</a></p>
+                    </div>
+                </form>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 FastAPI 로그인 시스템</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('register-form');
+            const messageBox = document.getElementById('message-box');
+            
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // 비밀번호 확인
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                if (password !== confirmPassword) {
+                    messageBox.textContent = '비밀번호가 일치하지 않습니다.';
+                    messageBox.className = 'message-box error';
+                    messageBox.style.display = 'block';
+                    return;
+                }
+                
+                // 폼 데이터 수집
+                const userData = {
+                    username: document.getElementById('username').value,
+                    email: document.getElementById('email').value,
+                    password: password
+                };
+                
+                try {
+                    // 회원가입 요청
+                    const response = await fetch('/api/v1/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // 회원가입 성공
+                        messageBox.textContent = '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다...';
+                        messageBox.className = 'message-box success';
+                        messageBox.style.display = 'block';
+                        
+                        // 로그인 페이지로 리다이렉트
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 2000);
+                    } else {
+                        // 회원가입 실패
+                        messageBox.textContent = data.detail || '회원가입에 실패했습니다.';
+                        messageBox.className = 'message-box error';
+                        messageBox.style.display = 'block';
+                    }
+                } catch (error) {
+                    // 네트워크 오류 등
+                    messageBox.textContent = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                    messageBox.className = 'message-box error';
+                    messageBox.style.display = 'block';
+                    console.error('Registration error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
