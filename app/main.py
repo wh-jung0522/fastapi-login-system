@@ -7,7 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.api.api import api_router
 from app.config import settings
 from app.database import engine, Base
-from app.api.deps import get_session_user
+from app.api.deps import get_active_session_user, get_session_user
 
 # 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)

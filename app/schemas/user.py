@@ -24,7 +24,7 @@ class UserOut(BaseModel):
     created_at: datetime
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # 로그인 시 사용되는 스키마
 class UserLogin(BaseModel):
